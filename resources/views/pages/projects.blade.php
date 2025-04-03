@@ -359,7 +359,7 @@
         bottom: 1rem;
     }
     .swiper-pagination-bullet {
-        background: #000;
+        background: #fff;
         opacity: 1;
         border: 2px solid #000;
         border-radius: 50%;
@@ -367,7 +367,7 @@
         height: 10px;
     }
     .swiper-pagination-bullet-active {
-        background: #fff;
+        background: #000;
         border: 2px solid #000;
     }
     .swiper-button-next,
@@ -393,7 +393,7 @@
     }
     .swiper-button-next::after,
     .swiper-button-prev::after {
-        font-size: 16px;
+        font-size: 1rem;
         color: #fff;
     }
     .view-project-button {

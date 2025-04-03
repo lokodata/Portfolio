@@ -50,10 +50,10 @@
         </div>
         @endforelse
     </div>
-    @if ($testimonials->isNotEmpty())
+    @if ($testimonials->count() > 3)
         <div class="swiper-pagination"></div>
-        <div class="swiper-button-prev !text-black absolute left-0 transform -translate-y-1/2"></div>
-        <div class="swiper-button-next !text-black absolute right-0 transform -translate-y-1/2"></div>
+        <div class="swiper-button-prev testimonials-prev absolute left-0 transform -translate-y-1/2"></div>
+        <div class="swiper-button-next testimonials-next absolute right-0 transform -translate-y-1/2"></div>
     @endif
 </div>
 @endsection
@@ -83,13 +83,30 @@
     .swiper-button-next {
         width: 30px !important;
         height: 30px !important;
-        color: #fff !important;
-        background: #000;
+        color: white !important;
+        background: black;
         border-radius: 50%;
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        top: 50% !important;
+        position: absolute;
+    }
+
+    .swiper-button-prev {
+        left: 0;
+    }
+
+    .swiper-button-next {
+        right: 0;
+    }
+
+    .swiper-button-prev::after,
+    .swiper-button-next::after {
+        font-size: 1rem !important;
+        font-weight: bold;
+        color: white;
     }
 
     .swiper-pagination-bullet {
