@@ -44,12 +44,8 @@ class ProjectResource extends Resource
                             ->directory('project-images')
                             ->visibility('public')
                             ->required(),
-                        Forms\Components\TextInput::make('order')
-                            ->numeric()
-                            ->default(0)
-                            ->label('Display Order'),
                     ])
-                    ->columns(2)
+                    ->columns(1)
                     ->defaultItems(0)
                     ->reorderable()
                     ->collapsible(),

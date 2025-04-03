@@ -140,6 +140,9 @@
     import PhotoSwipe from 'https://cdn.jsdelivr.net/npm/photoswipe@5.3.8/dist/photoswipe.esm.min.js';
 
     document.addEventListener('DOMContentLoaded', async () => {
+        // Get the number of slides
+        const slidesCount = document.querySelectorAll('.swiper-container > .swiper-wrapper > .swiper-slide').length;
+
         // Swiper initialization
         const swiper = new Swiper('.swiper-container', {
             slidesPerView: 1,
@@ -156,8 +159,23 @@
                 nextEl: '.swiper-button-next',
                 prevEl: '.swiper-button-prev',
             },
-            loop: true
+            // Only enable loop if there's more than one slide
+            loop: slidesCount > 1
         });
+
+        // Hide navigation and pagination if there's only one slide
+        if (slidesCount <= 1) {
+            const container = document.querySelector('.swiper-container');
+            if (container) {
+                const pagination = container.querySelector('.swiper-pagination');
+                const nextButton = container.querySelector('.swiper-button-next');
+                const prevButton = container.querySelector('.swiper-button-prev');
+                
+                if (pagination) pagination.style.display = 'none';
+                if (nextButton) nextButton.style.display = 'none';
+                if (prevButton) prevButton.style.display = 'none';
+            }
+        }
 
         // Initialize PhotoSwipe
         const lightbox = new PhotoSwipeLightbox({
@@ -219,8 +237,10 @@
 
         // Add this after your main swiper initialization in the scripts section
         if (document.querySelector('.testimonials-inner')) {
+            const testimonialSlides = document.querySelectorAll('.testimonials-inner .swiper-slide').length;
+            
             new Swiper('.testimonials-inner', {
-                loop: true,
+                loop: testimonialSlides > 1,
                 effect: 'fade',
                 fadeEffect: {
                     crossFade: true
@@ -234,11 +254,25 @@
                     nextEl: '.testimonials-next',
                     prevEl: '.testimonials-prev',
                 },
-                autoplay: {
+                autoplay: testimonialSlides > 1 ? {
                     delay: 5000,
                     disableOnInteraction: false
-                }
+                } : false
             });
+
+            // Hide navigation and pagination if there's only one testimonial
+            if (testimonialSlides <= 1) {
+                const container = document.querySelector('.testimonials-inner');
+                if (container) {
+                    const pagination = container.querySelector('.testimonials-pagination');
+                    const nextButton = container.querySelector('.testimonials-next');
+                    const prevButton = container.querySelector('.testimonials-prev');
+                    
+                    if (pagination) pagination.style.display = 'none';
+                    if (nextButton) nextButton.style.display = 'none';
+                    if (prevButton) prevButton.style.display = 'none';
+                }
+            }
         }
     });
 </script>
