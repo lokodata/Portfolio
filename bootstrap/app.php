@@ -12,14 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->trustProxies(
-            proxies: '*', // Trust all proxies (suitable for Heroku)
-            headers: Request::HEADER_X_FORWARDED_FOR |
-                     Request::HEADER_X_FORWARDED_HOST |
-                     Request::HEADER_X_FORWARDED_PORT |
-                     Request::HEADER_X_FORWARDED_PROTO | // <-- The important one for HTTPS
-                     Request::HEADER_X_FORWARDED_AWS_ELB // <-- Recommended for Heroku/AWS
-       );
+        //
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
