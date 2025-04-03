@@ -3,8 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use App\Http\Middleware\TrustProxies;
-use App\Http\Middleware\HttpsProtocol;
+use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -13,8 +12,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->append(TrustProxies::class);
-        $middleware->append(HttpsProtocol::class);
+        $middleware->trustProxies(
+            proxies: '*', // Trust all proxies (suitable for Heroku)
+            headers: Request::HEADER_X_FORWARDED_FOR |
+                     Request::HEADER_X_FORWARDED_HOST |
+                     Request::HEADER_X_FORWARDED_PORT |
+                     Request::HEADER_X_FORWARDED_PROTO | // <-- The important one for HTTPS
+                     Request::HEADER_X_FORWARDED_AWS_ELB // <-- Recommended for Heroku/AWS
+       );
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
