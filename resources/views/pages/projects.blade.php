@@ -10,32 +10,34 @@
             {{-- Image Gallery Section --}}
             <div class="flex flex-col lg:flex-row gap-2 md:gap-4 w-full mb-2 md:mb-4">
                 {{-- Main Image Column (First on mobile) --}}
-                <div class="w-full lg:w-11/12 order-1 lg:order-2">
+                <div class="w-full {{ $project->images->isNotEmpty() ? 'lg:w-11/12' : 'lg:w-full' }} order-1 lg:order-2">
                     <div class="main-image cursor-zoom-in" 
                          data-pswp-src="{{ Storage::url($project->main_image_url) }}"
                          style="background-image: url('{{ Storage::url($project->main_image_url) }}');
                                 background-size: cover;
-                                background-position: top;">
+                                background-position: center top;">
                     </div>
                 </div>
                 
                 {{-- Preview Column (Second on mobile, 100% width on mobile) --}}
+                @if($project->images->isNotEmpty())
                 <div class="w-full lg:w-1/12 order-2 lg:order-1 relative">
                     <div class="preview-scroll-mobile lg:preview-scroll">
                         <div class="preview-image cursor-pointer" 
                              style="background-image: url('{{ Storage::url($project->main_image_url) }}'); 
                                     background-size: cover; 
-                                    background-position: top;">
+                                    background-position: center top;">
                         </div>
                         @foreach($project->images as $image)
                         <div class="preview-image cursor-pointer" 
                              style="background-image: url('{{ Storage::url($image->image_url) }}'); 
                                     background-size: cover; 
-                                    background-position: top;">
+                                    background-position: center top;">
                         </div>
                         @endforeach
                     </div>
                 </div>
+                @endif
             </div>
 
             {{-- Project Info Section (Below Images) --}}
@@ -51,38 +53,6 @@
                 </a>
                 @endif
             </div>
-
-            {{-- Update the testimonials section inside the swiper-slide --}}
-            @if($project->testimonials && $project->testimonials->count() > 0)
-            <div class="mt-12 mb-8 max-w-4xl mx-auto"> {{-- Testimonials section --}}
-                <h3 class="text-2xl font-bold text-center mb-8">What Clients Say</h3>
-                <div class="swiper-container testimonials-inner px-8 relative"> {{-- Added relative positioning --}}
-                    <div class="swiper-wrapper">
-                        @foreach($project->testimonials as $testimonial)
-                        <div class="swiper-slide text-center px-8 py-12">
-                            @if($testimonial->image_url)
-                            <img src="{{ Storage::url($testimonial->image_url) }}" 
-                                 alt="{{ $testimonial->name }}" 
-                                 class="w-32 h-32 rounded-full mx-auto mb-6 object-cover border-2 border-gray-200 shadow-lg">
-                            @endif
-                            <h4 class="text-2xl font-bold mb-2">{{ $testimonial->name }}</h4>
-                            @if($testimonial->rating)
-                            <div class="flex justify-center my-4 text-yellow-400 text-2xl tracking-wider">
-                                @for ($i = 1; $i <= 5; $i++)
-                                    <span>{{ $i <= $testimonial->rating ? '★' : '☆' }}</span>
-                                @endfor
-                            </div>
-                            @endif
-                            <p class="text-gray-600 italic mt-4 text-xl leading-relaxed max-w-2xl mx-auto">"{{ $testimonial->text }}"</p>
-                        </div>
-                        @endforeach
-                    </div>
-                    <div class="swiper-pagination testimonials-pagination"></div>
-                    <div class="swiper-button-prev testimonials-prev"></div> {{-- Added navigation buttons --}}
-                    <div class="swiper-button-next testimonials-next"></div>
-                </div>
-            </div>
-            @endif
         </div>
         @empty
         <div class="swiper-slide text-center py-20">
@@ -234,46 +204,6 @@
                 }
             });
         });
-
-        // Add this after your main swiper initialization in the scripts section
-        if (document.querySelector('.testimonials-inner')) {
-            const testimonialSlides = document.querySelectorAll('.testimonials-inner .swiper-slide').length;
-            
-            new Swiper('.testimonials-inner', {
-                loop: testimonialSlides > 1,
-                effect: 'fade',
-                fadeEffect: {
-                    crossFade: true
-                },
-                speed: 700,
-                pagination: {
-                    el: '.testimonials-pagination',
-                    clickable: true,
-                },
-                navigation: {
-                    nextEl: '.testimonials-next',
-                    prevEl: '.testimonials-prev',
-                },
-                autoplay: testimonialSlides > 1 ? {
-                    delay: 5000,
-                    disableOnInteraction: false
-                } : false
-            });
-
-            // Hide navigation and pagination if there's only one testimonial
-            if (testimonialSlides <= 1) {
-                const container = document.querySelector('.testimonials-inner');
-                if (container) {
-                    const pagination = container.querySelector('.testimonials-pagination');
-                    const nextButton = container.querySelector('.testimonials-next');
-                    const prevButton = container.querySelector('.testimonials-prev');
-                    
-                    if (pagination) pagination.style.display = 'none';
-                    if (nextButton) nextButton.style.display = 'none';
-                    if (prevButton) prevButton.style.display = 'none';
-                }
-            }
-        }
     });
 </script>
 @endsection
@@ -485,53 +415,6 @@
 
     .pswp__top-bar {
         transition: opacity 0.3s ease-in-out;
-    }
-
-    /* Add these to your existing styles */
-    .testimonials-inner {
-        overflow: hidden;
-        position: relative;
-        padding: 0 50px; /* Make room for navigation arrows */
-    }
-
-    .testimonials-prev,
-    .testimonials-next {
-        width: 40px !important;
-        height: 40px !important;
-        background: white;
-        border-radius: 50%;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        color: black !important;
-        top: 50% !important;
-    }
-
-    .testimonials-prev {
-        left: 0;
-    }
-
-    .testimonials-next {
-        right: 0;
-    }
-
-    .testimonials-prev::after,
-    .testimonials-next::after {
-        font-size: 1.2rem !important;
-        font-weight: bold;
-        color: black;
-    }
-
-    /* Responsive adjustments for testimonials navigation */
-    @media (max-width: 768px) {
-        .testimonials-prev,
-        .testimonials-next {
-            width: 30px !important;
-            height: 30px !important;
-        }
-
-        .testimonials-prev::after,
-        .testimonials-next::after {
-            font-size: 1rem !important;
-        }
     }
 </style>
 @endsection
