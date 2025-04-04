@@ -392,6 +392,11 @@
         
         .leading-relaxed {
             line-height: 1.5;
+            text-align: justify;
+            text-justify: inter-word;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -ms-hyphens: auto;
         }
     }
 
