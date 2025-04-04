@@ -11,11 +11,14 @@
             <div class="flex flex-col lg:flex-row gap-2 md:gap-4 w-full mb-2 md:mb-4">
                 {{-- Main Image Column (First on mobile) --}}
                 <div class="w-full {{ $project->images->isNotEmpty() ? 'lg:w-11/12' : 'lg:w-full' }} order-1 lg:order-2">
-                    <div class="main-image cursor-zoom-in" 
+                    <div class="main-image cursor-zoom-in relative"
                          data-pswp-src="{{ Storage::url($project->main_image_url) }}"
                          style="background-image: url('{{ Storage::url($project->main_image_url) }}');
                                 background-size: cover;
                                 background-position: center top;">
+                        <div class="absolute inset-0 flex items-end justify-end p-2 pointer-events-none">
+                            <span class="text-white text-xs font-semibold bg-black bg-opacity-50 px-1 py-0.5 rounded-sm">Click to view full</span>
+                        </div>
                     </div>
                 </div>
                 
@@ -294,10 +297,17 @@
     }
     
     .main-image {
+        position: relative;
         width: 100%;
         height: 250px;
         border: 2px solid #000;
         border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .main-image .text-white {
+        /* Example: Add a slight text shadow for better readability */
+        /* text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7); */
     }
     
     @media (min-width: 640px) {
