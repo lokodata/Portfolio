@@ -4,11 +4,14 @@
 
 @section('content')
 <div class="text-center mb-10">
+    <div class="mb-6">
+        <img src="{{ asset('profile.jpeg') }}" 
+             alt="John Mark A. Pachico" 
+             class="w-48 h-48 rounded-full mx-auto object-cover border-4 border-black shadow-lg hover:grayscale transition duration-300"
+        >
+    </div>
     <h1 class="text-4xl md:text-5xl font-bold mb-4">John Mark A. Pachico</h1>
     <p class="text-lg md:text-xl text-gray-600 mb-4">GoHighLevel Expert | AI Automation | AI Developer</p>
-    <p class="text-xl md:text-2xl font-semibold text-gray-800 max-w-3xl mx-auto italic">
-        "Automate Your Business with AI: Free Up Your Time and Focus on Growth and Family"
-    </p>
 </div>
 
 <div class="grid md:grid-cols-2 gap-8 md:gap-12 px-4 max-w-6xl mx-auto">
