@@ -214,7 +214,7 @@
 @endsection
 
 @section('styles')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/5.3.8/photoswipe.min.css">
+<link rel="stylesheet" href="{{ asset('vendor/photoswipe/photoswipe.min.css') }}">
 <style>
     .swiper-container {
         overflow: hidden;
