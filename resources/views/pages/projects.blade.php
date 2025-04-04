@@ -16,8 +16,8 @@
                          style="background-image: url('{{ Storage::url($project->main_image_url) }}');
                                 background-size: cover;
                                 background-position: center top;">
-                        <div class="absolute inset-0 flex items-end justify-end p-2 pointer-events-none">
-                            <span class="text-white text-xs font-semibold bg-black bg-opacity-50 px-1 py-0.5 rounded-sm">Click to view full</span>
+                        <div class="absolute inset-0 p-2 pointer-events-none">
+                            <span class="absolute bottom-2 right-2 text-white text-xs font-semibold bg-black bg-opacity-50 px-1 py-0.5 rounded-sm">Click to view full</span>
                         </div>
                     </div>
                 </div>
