@@ -124,6 +124,8 @@
             fadeEffect: {
                 crossFade: true
             },
+            allowTouchMove: false,
+            simulateTouch: false,
             pagination: {
                 el: '.swiper-pagination',
                 clickable: true,
