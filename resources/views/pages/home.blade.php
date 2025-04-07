@@ -331,7 +331,6 @@ Hero section content not available. Please configure it in the admin panel.
         // --- Project Gallery Logic ---
         const mainImageContainer = document.getElementById('projectMainImageContainer');
         const mainImage = document.getElementById('projectMainImage');
-        // const zoomOverlay = document.getElementById('zoomOverlay'); // No longer needed for JS logic
         let currentProjectIndex = 0;
         const projectCounter = document.querySelector('.project-counter');
         const projectDetailsContainer = document.getElementById('projectDetails');
@@ -341,8 +340,18 @@ Hero section content not available. Please configure it in the admin panel.
         let lightbox = null; // Variable to hold the PhotoSwipe instance for the current project
         let photoSwipeClickListener = null; // Variable to hold the click listener function
 
-        // --- REMOVED updateZoomOverlayVisibility function ---
-        // --- REMOVED onload listener for mainImage ---
+        // --- Function to scroll active thumbnail into view ---
+        function scrollActiveThumbnailIntoView() {
+            if (!thumbnailGallery) return; // Guard clause
+            const activeThumb = thumbnailGallery.querySelector('.active-thumbnail');
+            if (activeThumb) {
+                // Use setTimeout to ensure the scroll happens after potential layout shifts
+                // and doesn't interfere with the main page scroll position on load.
+                setTimeout(() => {
+                    activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }, 50); // Small delay
+            }
+        }
 
         // --- Thumbnail Click Logic ---
         function setupThumbnailListeners() {
@@ -370,20 +379,26 @@ Hero section content not available. Please configure it in the admin panel.
                 thumbnailGallery.querySelectorAll('.project-thumbnail').forEach(t => t.classList.add('opacity-70'));
                 this.classList.remove('opacity-70');
                 this.classList.add('active-thumbnail', 'opacity-100', 'transform', 'scale-105');
+
+                // Scroll the clicked (now active) thumbnail into view AFTER updating styles
+                scrollActiveThumbnailIntoView();
             }
         }
 
         // --- Update Project Display Function ---
         function updateProjectDisplay(index) {
             if (!projectsData || projectsData.length === 0 || index < 0 || index >= projectsData.length) {
-                // Handle invalid index or no data...
+                console.warn("Invalid project index or no project data.");
                 return;
             }
-            // ... (rest of the visibility checks and element showing logic) ...
+
+            // Show elements if they were hidden (e.g., if no projects initially)
             if(prevButton) prevButton.style.display = 'inline-block';
             if(nextButton) nextButton.style.display = 'inline-block';
             if(projectCounter) projectCounter.style.display = 'inline-block';
             if(mainImageContainer) mainImageContainer.style.display = 'block';
+            if(thumbnailGallery) thumbnailGallery.style.display = 'flex'; // Ensure gallery is visible
+            if(projectDetailsContainer) projectDetailsContainer.style.display = 'block'; // Ensure details are visible
 
 
             const project = projectsData[index];
@@ -423,11 +438,7 @@ Hero section content not available. Please configure it in the admin panel.
                 } else {
                     thumbnailGallery.innerHTML = '<p class="text-center text-sm text-gray-500 w-full">No images available for this project.</p>';
                 }
-                 // Scroll active thumbnail into view if needed
-                const activeThumb = thumbnailGallery.querySelector('.active-thumbnail');
-                if (activeThumb) {
-                    activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-                }
+                 // **** REMOVED scrollIntoView from here ****
             } else {
                  console.error("Thumbnail gallery element (.thumbnail-gallery) not found!");
             }
@@ -494,7 +505,6 @@ Hero section content not available. Please configure it in the admin panel.
 
         // --- PhotoSwipe Initialization & Listener Setup ---
         function setupPhotoSwipeForCurrentProject() {
-            // ... (destroy previous lightbox and listener logic remains the same) ...
              if (lightbox) {
                 lightbox.destroy();
                 lightbox = null;
@@ -537,10 +547,12 @@ Hero section content not available. Please configure it in the admin panel.
                         src: image.url,
                         alt: image.alt || projectForLightbox.title + ' Image ' + (index + 1)
                     };
+                    // Only set w/h if we have valid dimensions from the currently displayed main image
                     if (index === startIndex && currentMainImageWidth > 0 && currentMainImageHeight > 0) {
                         item.w = currentMainImageWidth;
                         item.h = currentMainImageHeight;
                     } else {
+                        // Let PhotoSwipe determine dimensions for other images or if current dimensions are invalid
                         item.w = 0;
                         item.h = 0;
                     }
@@ -554,13 +566,15 @@ Hero section content not available. Please configure it in the admin panel.
                 lightbox = new PhotoSwipeLightbox({
                     dataSource: dataSource,
                     pswpModule: PhotoSwipe,
-                    mainImage: mainImage,
-                    arrowPrev: false,
+                    // Removed mainImage option as it's less reliable with dynamic sources
+                    // Let PhotoSwipe handle the transition based on dataSource
+                    arrowPrev: false, // Example: customize UI elements if needed
                     arrowNext: false,
+                    zoom: false // Example
                 });
 
                  lightbox.on('destroy', () => {
-                    lightbox = null;
+                    lightbox = null; // Clean up reference
                 });
 
                 lightbox.init();
@@ -577,17 +591,19 @@ Hero section content not available. Please configure it in the admin panel.
 
         // --- Initial Setup ---
         if (projectsData.length > 0 && mainImageContainer && mainImage && projectDetailsContainer && thumbnailGallery && projectCounter && prevButton && nextButton) {
-            updateProjectDisplay(0); // Display first project initially
+            updateProjectDisplay(0); // Display first project initially (DOES NOT scroll thumbnail now)
 
             prevButton.addEventListener('click', () => {
                 if (currentProjectIndex > 0) {
                     updateProjectDisplay(currentProjectIndex - 1);
+                    scrollActiveThumbnailIntoView(); // Scroll AFTER updating
                 }
             });
 
             nextButton.addEventListener('click', () => {
                 if (currentProjectIndex < projectsData.length - 1) {
                     updateProjectDisplay(currentProjectIndex + 1);
+                    scrollActiveThumbnailIntoView(); // Scroll AFTER updating
                 }
             });
         } else {
@@ -596,8 +612,14 @@ Hero section content not available. Please configure it in the admin panel.
             if(prevButton) prevButton.style.display = 'none';
             if(nextButton) nextButton.style.display = 'none';
             if(projectCounter) projectCounter.style.display = 'none';
-            if(thumbnailGallery) thumbnailGallery.innerHTML = '<p class="text-center text-sm text-gray-500 w-full">No projects to display yet.</p>';
-            if(projectDetailsContainer) projectDetailsContainer.innerHTML = ''; // Clear details
+            if(thumbnailGallery) {
+                thumbnailGallery.innerHTML = '<p class="text-center text-sm text-gray-500 w-full">No projects to display yet.</p>';
+                thumbnailGallery.style.display = 'none'; // Hide gallery container too
+            }
+            if(projectDetailsContainer) {
+                 projectDetailsContainer.innerHTML = ''; // Clear details
+                 projectDetailsContainer.style.display = 'none'; // Hide details container
+            }
             if(mainImageContainer) mainImageContainer.style.display = 'none'; // Hide image container
         }
 
