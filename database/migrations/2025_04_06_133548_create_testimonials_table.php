@@ -14,9 +14,11 @@ return new class extends Migration
         Schema::create('testimonials', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->text('text');
-            $table->string('image_url')->nullable();
-            $table->unsignedTinyInteger('rating')->nullable();
+            $table->string('image_path')->nullable();
+            $table->string('company')->nullable();
+            $table->text('quote');
+            $table->unsignedTinyInteger('rating')->default(5); // Assuming 1-5 stars
+            $table->integer('order')->default(0);
             $table->timestamps();
         });
     }

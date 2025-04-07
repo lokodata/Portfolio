@@ -5,16 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Testimonial extends Model
+class HeroSection extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'name',
         'image_path',
-        'company',
-        'quote',
-        'rating',
-        'order',
+        'job_titles',
+        'description',
+        'social_links',
+    ];
+
+    protected $casts = [
+        'job_titles' => 'array',
+        'social_links' => 'array',
     ];
 }

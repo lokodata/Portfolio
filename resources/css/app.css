@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@config '../../tailwind.config.js';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -6,11 +7,98 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: Inter, sans-serif;
 }
 
 body, html {
     margin: 0;
     padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+button:focus-visible, a:focus-visible, input:focus-visible {
+    outline: 2px solid blue;
+    outline-offset: 2px;
+}
+button svg, a svg {
+    fill: currentColor;
+}
+.thumbnail-gallery::-webkit-scrollbar { height: 6px; }
+.thumbnail-gallery::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+.thumbnail-gallery::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+.thumbnail-gallery::-webkit-scrollbar-thumb:hover { background: #aaa; }
+.dark .thumbnail-gallery::-webkit-scrollbar-track { background: #4b5563; }
+.dark .thumbnail-gallery::-webkit-scrollbar-thumb { background: #6b7280; }
+.dark .thumbnail-gallery::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+/* TypeIt cursor styles - moved here for potential reuse, but can be scoped if needed */
+.ti-cursor {
+    color: #15803d;
+    font-weight: bold;
+    margin-left: 2px;
+    animation: blink 1s infinite;
+}
+.dark .ti-cursor {
+     color: #15803d;
+}
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* Testimonial Scrollbar styles */
+.testimonial-scroll::-webkit-scrollbar { width: 6px; }
+.testimonial-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+.testimonial-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+.testimonial-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+.dark .testimonial-scroll::-webkit-scrollbar-track { background: #374151; }
+.dark .testimonial-scroll::-webkit-scrollbar-thumb { background: #6b7280; }
+.dark .testimonial-scroll::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+/* Image Overlay (Modal) Styles */
+.image-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.image-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+.image-overlay img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    cursor: default;
+}
+.image-overlay-close {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    line-height: 1;
+}
+ /* Style for active thumbnail */
+.project-thumbnail.active-thumbnail {
+    outline: 2px solid #15803d; /* Use primary color */
+    outline-offset: 2px;
+    opacity: 1; /* Ensure full opacity */
+}
+.project-thumbnail:not(.active-thumbnail) {
+    opacity: 0.75; /* Keep existing hover opacity */
 }

@@ -5,16 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Testimonial extends Model
+class ContactInfo extends Model
 {
     use HasFactory;
 
+    // Only allow one record for site-wide settings
     protected $fillable = [
-        'name',
-        'image_path',
-        'company',
-        'quote',
-        'rating',
-        'order',
+        'gmail',
+        'facebook_link',
     ];
 }

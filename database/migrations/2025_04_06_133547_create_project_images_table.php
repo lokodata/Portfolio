@@ -11,20 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('projects', function (Blueprint $table) {
-            $table->id();
-            $table->string('title');
-            $table->text('description')->nullable();
-            $table->string('main_image_url')->nullable(); // Main showcase image
-            $table->string('link')->nullable(); 
-            $table->timestamps();
-        });
-
         Schema::create('project_images', function (Blueprint $table) {
             $table->id();
             $table->foreignId('project_id')->constrained()->onDelete('cascade');
-            $table->string('image_url');
-            $table->integer('order')->default(0); // For custom ordering
+            $table->string('image_path');
+            $table->integer('order')->default(0);
+            $table->string('alt_text')->nullable(); // Good for accessibility
             $table->timestamps();
         });
     }
@@ -35,6 +27,5 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('project_images');
-        Schema::dropIfExists('projects');
     }
 };

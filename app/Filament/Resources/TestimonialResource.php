@@ -3,19 +3,24 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\TestimonialResource\Pages;
+use App\Filament\Resources\TestimonialResource\RelationManagers;
 use App\Models\Testimonial;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Columns\ImageColumn;
 
 class TestimonialResource extends Resource
 {
     protected static ?string $model = Testimonial::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-left-right'; // Choose an icon
-    protected static ?string $navigationLabel = 'Testimonials / Reviews'; // Customize label
+    protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-left-right';
+    protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form
     {
@@ -24,29 +29,33 @@ class TestimonialResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Textarea::make('text')
-                    ->label('Testimonial Text')
-                    ->required()
-                    ->columnSpanFull(),
-                Forms\Components\FileUpload::make('image_url')
-                    ->label('Author Image (Optional)')
+                Forms\Components\TextInput::make('company')
+                    ->maxLength(255),
+                FileUpload::make('image_path')
+                    ->label('Author Image')
                     ->image()
-                    ->directory('testimonial-images') // Store in storage/app/public/testimonial-images
-                    ->visibility('public')
-                    ->nullable(),
+                    ->directory('testimonial-images')
+                    ->avatar()
+                    ->imageEditor(),
+                Forms\Components\Textarea::make('quote')
+                    ->required()
+                    ->rows(5)
+                    ->columnSpanFull(),
                 Forms\Components\Select::make('rating')
-                    ->options([ // Define star options
+                    ->options([
                         1 => '1 Star',
                         2 => '2 Stars',
                         3 => '3 Stars',
                         4 => '4 Stars',
                         5 => '5 Stars',
                     ])
-                    ->nullable(),
-                Forms\Components\TextInput::make('sort_order')
+                    ->required()
+                    ->default(5),
+                Forms\Components\TextInput::make('order')
+                    ->label('Display Order')
                     ->numeric()
                     ->default(0)
-                    ->label('Display Order'),
+                    ->helperText('Lower numbers display first.'),
             ]);
     }
 
@@ -54,28 +63,30 @@ class TestimonialResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('image_url')
-                    ->label('Image')
-                    ->disk('public')
-                    ->circular(), // Make image circular
+                ImageColumn::make('image_path')->label('Image')->circular(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('company')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('rating')
-                    ->formatStateUsing(fn (?int $state): string => $state ? str_repeat('★', $state) . str_repeat('☆', 5 - $state) : 'N/A') // Display stars
+                    ->formatStateUsing(fn (string $state): string => "{$state} Star(s)")
                     ->sortable(),
-                Tables\Columns\TextColumn::make('sort_order')
-                    ->label('Display Order')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('text')
-                    ->limit(50) // Show only a preview
-                    ->searchable(),
+                 Tables\Columns\TextColumn::make('order')
+                     ->label('Display Order')
+                     ->sortable(),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->defaultSort('sort_order', 'asc')
-            ->reorderable('sort_order')
+            ->filters([
+                //
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
