@@ -132,8 +132,8 @@ Hero section content not available. Please configure it in the admin panel.
                      alt="{{ $firstProject && $firstProject->images->isNotEmpty() ? ($firstProject->images->first()->alt_text ?? $firstProject->title . ' Screenshot') : ($firstProject->title ?? 'Project') . ' Screenshot' }}"
                      data-current-index="0"
                      />
-                {{-- Add the overlay span with an ID and initially hidden --}}
-                <span id="zoomOverlay" class="absolute bottom-3 right-3 z-10 bg-black/60 text-white text-xs font-medium px-2 py-1 rounded-md transition-opacity duration-200 ease-in-out pointer-events-none opacity-0"> {{-- Start with opacity-0 --}}
+                {{-- Add the overlay span - REMOVE opacity-0 to make it always visible --}}
+                <span id="zoomOverlay" class="absolute bottom-3 right-3 z-10 bg-black/60 text-white text-xs font-medium px-2 py-1 rounded-md pointer-events-none">
                     Click to Zoom
                 </span>
             </div>
@@ -172,9 +172,9 @@ Hero section content not available. Please configure it in the admin panel.
                     @endif
                 </div>
 
+                {{-- Project Description - Ensure this element exists and is targeted correctly --}}
                 <p class="mt-4 text-sm text-black dark:text-stone-300 text-justify md:text-center" id="projectDescription">
-                    {{-- Description will be set dynamically via JavaScript --}}
-                    {!! $firstProject->description ?? 'Project description goes here.' !!} {{-- Use {!! !!} if description might contain HTML --}}
+                    {{ $firstProject->description ?? 'Project description goes here.' }}
                 </p>
 
                 @if($firstProject?->project_link)
@@ -331,7 +331,7 @@ Hero section content not available. Please configure it in the admin panel.
         // --- Project Gallery Logic ---
         const mainImageContainer = document.getElementById('projectMainImageContainer');
         const mainImage = document.getElementById('projectMainImage');
-        const zoomOverlay = document.getElementById('zoomOverlay'); // Get overlay element
+        // const zoomOverlay = document.getElementById('zoomOverlay'); // No longer needed for JS logic
         let currentProjectIndex = 0;
         const projectCounter = document.querySelector('.project-counter');
         const projectDetailsContainer = document.getElementById('projectDetails');
@@ -341,45 +341,8 @@ Hero section content not available. Please configure it in the admin panel.
         let lightbox = null; // Variable to hold the PhotoSwipe instance for the current project
         let photoSwipeClickListener = null; // Variable to hold the click listener function
 
-        // --- Function to Update Zoom Overlay Visibility ---
-        function updateZoomOverlayVisibility() {
-            if (!mainImage || !mainImageContainer || !zoomOverlay) {
-                // console.warn("Required elements for zoom overlay not found.");
-                return;
-            }
-
-            // Ensure image is loaded and has dimensions
-            if (mainImage.complete && mainImage.naturalWidth > 0 && mainImage.naturalHeight > 0) {
-                const containerWidth = mainImageContainer.offsetWidth;
-                const containerHeight = mainImageContainer.offsetHeight;
-                const imageNeedsZoom = mainImage.naturalWidth > containerWidth || mainImage.naturalHeight > containerHeight;
-
-                // console.log(`Image: ${mainImage.naturalWidth}x${mainImage.naturalHeight}, Container: ${containerWidth}x${containerHeight}, NeedsZoom: ${imageNeedsZoom}`); // Debug logging
-
-                if (imageNeedsZoom) {
-                    zoomOverlay.classList.remove('opacity-0'); // Make visible
-                } else {
-                    zoomOverlay.classList.add('opacity-0'); // Make hidden
-                }
-            } else {
-                // Image not loaded yet, hide overlay
-                zoomOverlay.classList.add('opacity-0');
-            }
-        }
-
-        // --- Attach onload listener to main image ---
-        if (mainImage) {
-            mainImage.onload = () => {
-                // console.log("Main image loaded, updating overlay visibility."); // Debug logging
-                updateZoomOverlayVisibility();
-            };
-            // Also check in case image is already cached
-             if (mainImage.complete) {
-                // console.log("Main image already complete, updating overlay visibility."); // Debug logging
-                updateZoomOverlayVisibility();
-            }
-        }
-
+        // --- REMOVED updateZoomOverlayVisibility function ---
+        // --- REMOVED onload listener for mainImage ---
 
         // --- Thumbnail Click Logic ---
         function setupThumbnailListeners() {
@@ -395,9 +358,6 @@ Hero section content not available. Please configure it in the admin panel.
             const clickedIndex = parseInt(this.dataset.index, 10);
 
             if (largeSrc && mainImage && mainImage.src !== largeSrc) {
-                // Hide overlay immediately while new image loads
-                if(zoomOverlay) zoomOverlay.classList.add('opacity-0');
-
                 mainImage.src = largeSrc;
                 mainImage.alt = this.alt.replace(" Thumbnail ", " Screenshot ") || "Project Screenshot";
 
@@ -410,9 +370,6 @@ Hero section content not available. Please configure it in the admin panel.
                 thumbnailGallery.querySelectorAll('.project-thumbnail').forEach(t => t.classList.add('opacity-70'));
                 this.classList.remove('opacity-70');
                 this.classList.add('active-thumbnail', 'opacity-100', 'transform', 'scale-105');
-
-                // Call check after setting src (for cached images), onload will handle async
-                updateZoomOverlayVisibility();
             }
         }
 
@@ -435,15 +392,9 @@ Hero section content not available. Please configure it in the admin panel.
             const firstImageUrl = project.images.length > 0 ? project.images[0].url : 'https://placehold.co/853x480/e0e0e0/1C1917?text=No+Image';
             const firstImageAlt = project.images.length > 0 ? (project.images[0].alt ?? project.title + ' Screenshot') : project.title + ' Screenshot';
             if (mainImage) {
-                 // Hide overlay immediately while new image loads
-                if(zoomOverlay) zoomOverlay.classList.add('opacity-0');
-
                 mainImage.src = firstImageUrl;
                 mainImage.alt = firstImageAlt;
                 mainImage.dataset.currentIndex = '0';
-
-                // Call check after setting src (for cached images), onload will handle async
-                updateZoomOverlayVisibility();
             } else {
                  console.error("Main image element (#projectMainImage) not found!");
             }
@@ -483,31 +434,41 @@ Hero section content not available. Please configure it in the admin panel.
 
             // Update Project Details
             if (projectDetailsContainer) {
-                projectDetailsContainer.querySelector('h3').textContent = project.title;
                 const descriptionElement = projectDetailsContainer.querySelector('#projectDescription');
-                descriptionElement.innerHTML = project.description;
-                const metaDiv = projectDetailsContainer.querySelector('.gap-x-4');
-                metaDiv.innerHTML = ''; // Clear existing meta
-                if (project.date) {
-                    const dateSpan = document.createElement('span');
-                    dateSpan.className = 'font-normal text-black dark:text-stone-300';
-                    dateSpan.textContent = project.date;
-                    metaDiv.appendChild(dateSpan);
-                }
-                project.categories.forEach(cat => {
-                    const catSpan = document.createElement('span');
-                    catSpan.className = 'text-black/70 dark:text-stone-400 font-bold';
-                    catSpan.textContent = cat;
-                    metaDiv.appendChild(catSpan);
-                });
+                const titleElement = projectDetailsContainer.querySelector('h3'); // Target title
+                const metaDiv = projectDetailsContainer.querySelector('.gap-x-4'); // Target meta container
+                const linkContainer = projectDetailsContainer.querySelector('.mt-6'); // Target link container
 
-                const linkContainer = projectDetailsContainer.querySelector('.mt-6');
-                if (project.link) {
-                    linkContainer.innerHTML = `<a href="${project.link}" target="_blank" rel="noopener noreferrer" class="inline-block bg-white dark:bg-gray-700 text-black/70 dark:text-stone-300 text-xs font-bold px-5 py-2 rounded-lg shadow-md dark:shadow-none hover:shadow-lg dark:hover:bg-gray-600 transition-all duration-200 ease-in-out border border-gray-200 dark:border-gray-600 hover:scale-105"> View Project </a>`;
-                    linkContainer.style.display = 'flex';
-                } else {
-                    linkContainer.innerHTML = '';
-                    linkContainer.style.display = 'none';
+                // Ensure elements exist before updating
+                if (titleElement) titleElement.textContent = project.title;
+                if (descriptionElement) descriptionElement.innerHTML = project.description; // Use innerHTML for potential HTML in description
+
+                // Update Meta Info (Date & Categories)
+                if (metaDiv) {
+                    metaDiv.innerHTML = ''; // Clear existing meta
+                    if (project.date) {
+                        const dateSpan = document.createElement('span');
+                        dateSpan.className = 'font-normal text-black dark:text-stone-300';
+                        dateSpan.textContent = project.date;
+                        metaDiv.appendChild(dateSpan);
+                    }
+                    project.categories.forEach(cat => {
+                        const catSpan = document.createElement('span');
+                        catSpan.className = 'text-black/70 dark:text-stone-400 font-bold';
+                        catSpan.textContent = cat;
+                        metaDiv.appendChild(catSpan);
+                    });
+                }
+
+                // Update Project Link Button
+                if (linkContainer) {
+                    if (project.link) {
+                        linkContainer.innerHTML = `<a href="${project.link}" target="_blank" rel="noopener noreferrer" class="inline-block bg-white dark:bg-gray-700 text-black/70 dark:text-stone-300 text-xs font-bold px-5 py-2 rounded-lg shadow-md dark:shadow-none hover:shadow-lg dark:hover:bg-gray-600 transition-all duration-200 ease-in-out border border-gray-200 dark:border-gray-600 hover:scale-105"> View Project </a>`;
+                        linkContainer.style.display = 'flex';
+                    } else {
+                        linkContainer.innerHTML = '';
+                        linkContainer.style.display = 'none';
+                    }
                 }
             } else {
                  console.error("Project details container (#projectDetails) not found!");
@@ -631,6 +592,13 @@ Hero section content not available. Please configure it in the admin panel.
             });
         } else {
             // Handle case with no projects or missing essential elements...
+             console.warn("No projects found or essential HTML elements are missing. Hiding project section elements.");
+            if(prevButton) prevButton.style.display = 'none';
+            if(nextButton) nextButton.style.display = 'none';
+            if(projectCounter) projectCounter.style.display = 'none';
+            if(thumbnailGallery) thumbnailGallery.innerHTML = '<p class="text-center text-sm text-gray-500 w-full">No projects to display yet.</p>';
+            if(projectDetailsContainer) projectDetailsContainer.innerHTML = ''; // Clear details
+            if(mainImageContainer) mainImageContainer.style.display = 'none'; // Hide image container
         }
 
     }); // End DOMContentLoaded
