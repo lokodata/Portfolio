@@ -178,9 +178,9 @@ Hero section content not available. Please configure it in the admin panel.
                 </p>
 
                 @if($firstProject?->project_link)
-                <div class="mt-6 flex justify-start md:justify-center">
-                    <a href="{{ $firstProject->project_link }}" target="_blank" rel="noopener noreferrer" class="inline-block bg-white dark:bg-gray-700 text-black/70 dark:text-stone-300 text-xs font-bold px-5 py-2 rounded-lg shadow-md dark:shadow-none hover:shadow-lg dark:hover:bg-gray-600 transition-all duration-200 ease-in-out border border-gray-200 dark:border-gray-600 hover:scale-105"> View Project </a>
-                </div>
+                    <div class="mt-6 flex justify-start md:justify-center">
+                        <a href="{{ $firstProject->project_link }}" target="_blank" rel="noopener noreferrer" class="inline-block bg-white dark:bg-gray-700 text-black/70 dark:text-stone-300 text-xs font-bold px-5 py-2 rounded-lg shadow-md dark:shadow-none hover:shadow-lg dark:hover:bg-gray-600 transition-all duration-200 ease-in-out border border-gray-200 dark:border-gray-600 hover:scale-105"> View Project </a>
+                    </div>
                 @endif
             </div>
         </div>
