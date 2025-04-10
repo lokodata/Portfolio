@@ -248,26 +248,25 @@ Hero section content not available. Please configure it in the admin panel.
 
 <!-- Consultation Section -->
 <section id="consultation" class="py-16 md:py-24 bg-gray-100 dark:bg-gray-700" data-aos="fade-up">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <div class="max-w-7xl mx-auto px-4 mb-12 sm:px-6 md:mb-0 lg:px-8 text-center">
          <h2 class="text-3xl sm:text-4xl font-black text-black dark:text-white leading-tight"> Get Your Free Consultation </h2>
         <p class="mt-4 text-base text-black/70 dark:text-stone-300 font-medium tracking-widest max-w-md mx-auto"> Let's identify your challenges and develop a tailored solution. </p>
     </div>
-    <div class="mt-12 max-w-xl mx-auto" data-aos="zoom-in-up">
-        <form class="bg-white dark:bg-gray-800 p-8 rounded-[30px] shadow-md dark:shadow-primary/20 space-y-6 border border-zinc-300 dark:border-gray-600">
-             @csrf
-            <div> <label for="name" class="block text-stone-900 dark:text-stone-200 text-base font-normal leading-snug mb-2">Name</label> <input type="text" id="name" name="name" placeholder="John Mark" required class="w-full px-4 py-3 bg-white dark:bg-gray-700 text-black dark:text-white rounded-lg border border-zinc-300 dark:border-gray-600 focus:ring-primary focus:border-primary text-base placeholder-zinc-400 dark:placeholder-gray-500 transition-colors duration-200"> </div>
-            <div> <label for="surname" class="block text-stone-900 dark:text-stone-200 text-base font-normal leading-snug mb-2">Surname</label> <input type="text" id="surname" name="surname" placeholder="Pachico" required class="w-full px-4 py-3 bg-white dark:bg-gray-700 text-black dark:text-white rounded-lg border border-zinc-300 dark:border-gray-600 focus:ring-primary focus:border-primary text-base placeholder-zinc-400 dark:placeholder-gray-500 transition-colors duration-200"> </div>
-            <div> <label for="email" class="block text-stone-900 dark:text-stone-200 text-base font-normal leading-snug mb-2">Email</label> <input type="email" id="email" name="email" placeholder="example@gmail.com" required class="w-full px-4 py-3 bg-white dark:bg-gray-700 text-black dark:text-white rounded-lg border border-zinc-300 dark:border-gray-600 focus:ring-primary focus:border-primary text-base placeholder-zinc-400 dark:placeholder-gray-500 transition-colors duration-200"> </div>
-            <div> <label for="contact" class="block text-stone-900 dark:text-stone-200 text-base font-normal leading-snug mb-2">Contact No.</label> <input type="tel" id="contact" name="contact" placeholder="+63123456789" required class="w-full px-4 py-3 bg-white dark:bg-gray-700 text-black dark:text-white rounded-lg border border-zinc-300 dark:border-gray-600 focus:ring-primary focus:border-primary text-base placeholder-zinc-400 dark:placeholder-gray-500 transition-colors duration-200"> </div>
-            <div> <label for="business_type" class="block text-stone-900 dark:text-stone-200 text-base font-normal leading-snug mb-2">Business Type</label> <input type="text" id="business_type" name="business_type" placeholder="Real Estate Agency" required class="w-full px-4 py-3 bg-white dark:bg-gray-700 text-black dark:text-white rounded-lg border border-zinc-300 dark:border-gray-600 focus:ring-primary focus:border-primary text-base placeholder-zinc-400 dark:placeholder-gray-500 transition-colors duration-200"> </div>
-            <div class="text-center pt-2">
-                <button type="submit" class="w-full sm:w-auto inline-flex justify-center items-center px-10 py-3 bg-primary text-white text-base font-bold rounded-lg border border-primary dark:border-primary-dark hover:bg-primary-dark transition-all duration-200 ease-in-out hover:scale-105"> Submit </button>
-            </div>
-        </form>
+
+    {{-- Skeleton Loader for Calendly --}}
+    {{-- Added mx-auto for centering, rounded-lg for aesthetics --}}
+    <div id="calendly-skeleton" class="lg:mt-12 animate-pulse bg-gray-200 dark:bg-gray-600 mx-auto rounded-lg" style="min-width:320px; height:700px; max-width: 700px; /* Optional: constrain max-width */">
+        {{-- Optional: Add inner skeleton elements if desired --}}
     </div>
+
+    <!-- Calendly inline widget begin -->
+    {{-- Add id="calendly-embed" and initially hide it with class="hidden" --}}
+    <div id="calendly-embed" class="calendly-inline-widget hidden" data-url="https://calendly.com/pachicojm00/free-consultation-for-ai-automation-and-saas?hide_gdpr_banner=1&primary_color=15803d" style="min-width:320px;height:700px;"></div>
+    <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
+    <!-- Calendly inline widget end -->
 </section>
 
-@endsection
+@endsection 
 
 @push('scripts')
 <!-- **** 3. INCLUDE PHOTOSWIPE JS (ES Module) **** -->
@@ -621,6 +620,61 @@ Hero section content not available. Please configure it in the admin panel.
                  projectDetailsContainer.style.display = 'none'; // Hide details container
             }
             if(mainImageContainer) mainImageContainer.style.display = 'none'; // Hide image container
+        }
+
+        // --- Calendly Skeleton Loader ---
+        const skeleton = document.getElementById('calendly-skeleton');
+        const calendlyEmbed = document.getElementById('calendly-embed');
+        let calendlyLoaded = false; // Flag to prevent multiple executions
+
+        if (skeleton && calendlyEmbed) {
+            const showCalendly = () => {
+                if (calendlyLoaded) return; // Exit if already loaded
+                skeleton.classList.add('hidden');
+                calendlyEmbed.classList.remove('hidden');
+                calendlyLoaded = true; // Set flag
+                // Clean up listener
+                window.removeEventListener('message', handleCalendlyMessage);
+                console.log('Calendly widget shown.');
+            };
+
+            const handleCalendlyMessage = (e) => {
+                // Check if the message is from Calendly and indicates widget readiness
+                if (
+                    e.origin === "https://calendly.com" &&
+                    e.data &&
+                    typeof e.data === 'object' &&
+                    e.data.event &&
+                    (e.data.event === 'calendly.event_type_viewed' || e.data.event === 'calendly.profile_page_viewed')
+                ) {
+                    console.log('Calendly ready event received:', e.data.event);
+                    showCalendly();
+                }
+            };
+
+            window.addEventListener('message', handleCalendlyMessage);
+
+            // Fallback: Check if the iframe exists after a reasonable delay
+            // This helps if the specific event message isn't caught reliably
+            const fallbackTimeout = setTimeout(() => {
+                if (!calendlyLoaded && calendlyEmbed.querySelector('iframe')) {
+                    console.log('Calendly iframe detected (fallback).');
+                    showCalendly();
+                } else if (!calendlyLoaded) {
+                     console.warn('Calendly widget did not load within the fallback timeout.');
+                     // Optionally hide the skeleton even on failure after timeout
+                     // skeleton.classList.add('hidden');
+                     // You could display an error message here instead of the embed
+                }
+            }, 8000); // 8-second fallback timeout
+
+             // Ensure timeout is cleared if event listener succeeds first
+             if (calendlyLoaded) {
+                 clearTimeout(fallbackTimeout);
+             }
+
+        } else {
+            console.error('Calendly skeleton or embed element not found.');
         }
 
     }); // End DOMContentLoaded
